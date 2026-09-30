@@ -17,12 +17,13 @@ Windows PowerShell for a custom delay: `node start.js --delay=45000`
 1. On boot the app takes an instant snapshot (`/getTrades?delay=0`) so the dashboard has data, then requests a real pull with `callback=/webhook/trades`. BSE answers `202` right away.
 2. The dashboard loads `/api/trades` (instant) and subscribes to `/events` (SSE).
 3. After the delay, BSE POSTs the trades to the webhook. The app dedupes, stores, and pushes only the new rows to open dashboards, which highlight them.
-4. "Pull now" starts another pull. No cron, no polling.
+4. As soon as a pull completes, the app starts the next one automatically (event-driven chaining, not a scheduler). Set `AUTO_PULL=false` to stop after the first pull. No cron, no polling, no clicking.
 
 ## Config (env vars)
 | Var | Default | Meaning |
 |---|---|---|
 | `PULL_DELAY_MS` | 900000 | Mock BSE pull time |
+| `AUTO_PULL` | true | Start next pull when one completes |
 | `TRADE_COUNT` | 3000 | Trades per pull |
 | `PORT` / `BSE_PORT` | 3000 / 4000 | Ports |
 

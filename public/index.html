@@ -22,8 +22,7 @@ tr.new td{background:var(--new)}.toast{color:var(--acc);font-weight:500}
 </style></head><body>
 <header>
   <h1>BSE trades</h1>
-  <div class="status" id="status"><span class="dot"></span><span id="msg">Connecting…</span>
-    <button id="pull">Pull now</button></div>
+  <div class="status" id="status"><span class="dot"></span><span id="msg">Connecting…</span></div>
 </header>
 <div class="stats"><div><b id="total">0</b><span>trades loaded</span></div><div><b id="pulls">0</b><span>pulls completed</span></div><div><b id="last">–</b><span>last pull</span></div></div>
 <div class="bar"><input id="q" placeholder="Filter by client, symbol or trade ID" aria-label="Filter trades"> <span id="toast" class="toast"></span></div>
@@ -42,7 +41,6 @@ function render() {
 function status() {
   clearInterval(timer);
   $('status').classList.toggle('pulling', !!st.pulling);
-  $('pull').disabled = !!st.pulling;
   $('pulls').textContent = st.pulls || 0;
   $('last').textContent = st.lastPullAt ? new Date(st.lastPullAt).toLocaleTimeString() : '–';
   const tick = () => { const s = Math.max(0, Math.round((st.etaAt - Date.now()) / 1000));
@@ -58,6 +56,5 @@ es.addEventListener('trades', e => {
   fresh = new Set(t.map(x => x.tradeId)); all = all.concat(t); render();
   $('toast').textContent = `${t.length} new trades added`; setTimeout(() => $('toast').textContent = '', 6000);
 });
-$('pull').onclick = () => fetch('/api/pull', { method: 'POST' });
 $('q').oninput = render;
 </script></body></html>

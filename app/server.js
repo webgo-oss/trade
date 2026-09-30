@@ -4,6 +4,7 @@ const express = require('express');
 const path = require('path');
 const PORT = process.env.PORT || 3000;
 const BSE = process.env.BSE_URL || 'http://localhost:4000';
+const AUTO = process.env.AUTO_PULL !== 'false'; // start next pull as soon as one completes
 const SELF = process.env.SELF_URL || `http://localhost:${PORT}`;
 
 const trades = [];            // in-memory store (see ARCHITECTURE.md for prod notes)
@@ -30,6 +31,11 @@ async function startPull() {
   return true;
 }
 
+// Event-driven, not a scheduler: the next pull starts because the previous one just finished.
+function chainNext() {
+  startPull().catch(e => { console.error('[app] next pull failed, retrying in 5s:', e.message); setTimeout(chainNext, 5000); });
+}
+
 const app = express();
 app.use(express.json({ limit: '20mb' }));
 app.use(express.static(path.join(__dirname, '..', 'public')));
@@ -46,6 +52,7 @@ app.post('/webhook/trades', (req, res) => {                            // BSE ca
   broadcast('trades', fresh);
   broadcast('state', state);
   res.sendStatus(200);
+  if (AUTO) chainNext();
 });
 app.get('/events', (req, res) => {
   res.set({ 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache', Connection: 'keep-alive' });
