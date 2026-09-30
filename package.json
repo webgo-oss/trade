@@ -1,0 +1,13 @@
+{
+  "name": "bse-trades",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node start.js",
+    "demo": "node start.js --delay=20000",
+    "mock": "node bse-mock/server.js",
+    "app": "node app/server.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": { "express": "^4.19.2" }
+}
